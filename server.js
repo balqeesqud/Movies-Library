@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const movieData = require('./data.json'); // importing data from json file and save it in a variable
+const movieData = require('./Movie Data/data.json'); // importing data from json file and save it in a variable
 const cors = require('cors');
 
 const app = express();
@@ -30,9 +30,9 @@ function HomeMovie(title, poster_path, overview) {
 //Handlers Functions
 function handleHome(req, res) {
   let movie = new HomeMovie( //added as a harden copy
-    'title: Spider-Man: No Way Home',
-    'poster_path: /1g0dhYtq4irTY1GPXvft6k4YLjm.jpg',
-    'overview: Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man.'
+    movieData.title,
+    movieData.poster_path,
+    movieData.overview
   );
 
   res.json(movie); //to convert it into JSON-formatted response. ({"key":"pair"})
