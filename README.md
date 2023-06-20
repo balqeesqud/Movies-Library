@@ -4,7 +4,7 @@
 
 ## WRRC
 
-![WWRC image](./assets/image1.jpg)
+![WWRC image](./image1.jpg)
 
 ## Overview
 
