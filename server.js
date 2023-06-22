@@ -5,6 +5,7 @@ const movieData = require('./Movie Data/data.json'); // importing data from json
 const cors = require('cors');
 const app = express();
 const axios = require('axios');
+require('dotenv').config();
 
 app.use(cors()); // who can touch the server
 
@@ -30,10 +31,10 @@ function handleFavorite(req, res) {
   res.send('Welcome to our Favorite page');
 }
 
-
 app.get('/trending', async (req, res) => {
   let axiosRespone = await axios.get(
-    'https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US'
+    // API Key (created from TMDB) added using ${} with back-tic with declaring "dotenv" above.
+    `https://api.themoviedb.org/3/trending/all/week?api_key=${process.env.SECERT_API}&language=en-US`
   );
   // res.send(axiosRespone.data);
 
@@ -71,38 +72,36 @@ app.get('/trending', async (req, res) => {
 //   this.release_date = release_date;
 //   this.overview = overview;
 // }
-
 app.get('/search', async (req, res) => {
+  let searchArr = [];
   let movieName = req.query.name;
   let axiosRespone = await axios.get(
-    'https://api.themoviedb.org/3/search/movie?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&query=The&page=2'
+    `https://api.themoviedb.org/3/search/movie?api_key=${process.env.SECERT_API}&language=en-US&query=${movieName}&page=2`
   );
   let searchArray = axiosRespone.data['results'];
   for (let i = 0; i < searchArray.length; i++) {
-    if (
-      movieName.toLowerCase().trim() === // trim to remove white-spaces
-      searchArray[i].title.toLowerCase().trim()
-    ) {
-      // console.log(movieName);
-      // console.log(searchArray[i].title);
-
-      let movie = {
-        id: searchArray[i].id,
-        title: searchArray[i].title,
-        poster_path: searchArray[i].poster_path,
-        release_date: searchArray[i].release_date,
-        overview: searchArray[i].overview,
-      };
-      console.log(movie);
-      return res.send(movie);
-    }
+    //   if (
+    //     movieName.toLowerCase().trim() === // trim to remove white-spaces
+    //     searchArray[i].title.toLowerCase().trim()
+    //   ) {
+    // console.log(movieName);
+    // console.log(searchArray[i].title);
+    let movie = {
+      id: searchArray[i].id,
+      title: searchArray[i].title,
+      poster_path: searchArray[i].poster_path,
+      release_date: searchArray[i].release_date,
+      overview: searchArray[i].overview,
+    };
+    console.log(movie);
+    searchArr.push(movie);
   }
-  res.send('Movie not found');
+  res.send(searchArr);
 });
 
 app.get('/top_rated', async (req, res) => {
   let axiosRespone = await axios.get(
-    'https://api.themoviedb.org/3/movie/top_rated?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&page=1'
+    `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.SECERT_API}&language=en-US&page=1`
   );
   let topRatedArr = axiosRespone.data['results'];
   let rated = [];
@@ -123,7 +122,7 @@ app.get('/top_rated', async (req, res) => {
 
 app.get('/tv_list', async (req, res) => {
   let axiosRespone = await axios.get(
-    ' https://api.themoviedb.org/3/genre/tv/list?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&page=1'
+    `https://api.themoviedb.org/3/genre/tv/list?api_key=${process.env.SECERT_API}&language=en-US&page=1`
   );
 
   let tvArray = axiosRespone.data['genres'];
@@ -149,7 +148,6 @@ function HomeMovie(title, poster_path, overview) {
 }
 
 // {
-
 
 // Server Error(4 parameters)  here is a middleware
 app.use((err, req, res, next) => {
