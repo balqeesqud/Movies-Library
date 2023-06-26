@@ -4,7 +4,7 @@
 
 ## WRRC
 
-![WRRC image](./assets/image2.jpg)
+![WRRC image](./assets/image3.jpg)
 
 ## Overview
 
@@ -43,3 +43,6 @@ Adding a 3rd API which is TMDB to get data using axios library along with async/
 project holds the port will be running on which is here 3001, and also the get routes are ("/") for home page, ("/favorite") for favorite page, and ("*") for any other resources, and for their handler functions; home handler function will resend a json formatted of the movie we have on our server, and favorite handle function will resend("welcome to our favorite page") and lastly for handling the errors for typing any other routes will provide error 404, and also added a server error function if that server has some error.
 
 **Updates** send get requests to a 3rd party API and display data; project now holds also the ('/search'), ('/trending'), ('/top_rated'), and ('/tv_list') endpoints, to search for any movie, trending, top 10 movies, or for tv lists.
+
+**New Updates**
+Used postgresSql to manipulate a (movies) table in the database (movieslibrary) using CRUD operations (creating/ inserting a new movie) using post request, and get the movies data from the database using get request to get all the data inside database
