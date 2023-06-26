@@ -92,6 +92,7 @@ app.get('/trending', async (req, res) => {
   res.send(trendingMovies);
 });
 
+
 app.get('/search', async (req, res) => {
   let searchArr = [];
   let movieName = req.query.name;
@@ -100,6 +101,7 @@ app.get('/search', async (req, res) => {
   );
   let searchArray = axiosRespone.data['results'];
   for (let i = 0; i < searchArray.length; i++) {
+
     let movie = {
       id: searchArray[i].id,
       title: searchArray[i].title,
@@ -161,6 +163,7 @@ function HomeMovie(title, poster_path, overview) {
   this.overview = overview;
 }
 
+
 // handleNotFound(req, res)  here is a middleware
 app.use((req, res, next) => {
   res.status(404).send({
@@ -169,6 +172,9 @@ app.use((req, res, next) => {
     responseText: 'Page not found',
   });
 });
+=======
+// {
+
 
 // Server Error(4 parameters)  here is a middleware
 app.use((err, req, res, next) => {
