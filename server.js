@@ -7,10 +7,46 @@ const app = express();
 const axios = require('axios');
 require('dotenv').config();
 
+const pg = require('pg'); // pg client library for databases.
 app.use(cors()); // who can touch the server
+app.use(express.json()); // extracting info from a JSON written in the body and convert it into a JavaScript object
 
-// Error handling middleware
-// app.use(handleServerError);
+let PORT = process.env.PORT;
+const DATABASE_URL = process.env.DATABASE_URL;
+
+const client = new pg.Client(DATABASE_URL); // Connecting data base then connect to server
+
+app.get('/getMovies', (req, res) => {
+  // to get all movies inserted into movies table in the movieslibrary database
+  let sql = `SELECT * FROM movies`;
+  client.query(sql).then((moviesData) => {
+    res.status(200).send(moviesData.rows);
+  });
+});
+
+// Adding Route using post
+app.post('/addMovie', (req, res) => {
+  let movieTitle = req.body.movieTitle; // requesting the keys in the body
+  let release_year = req.body.year; // these are columns
+  let overView = req.body.overView;
+  let comment = req.body.comment;
+
+  //insert into should match with the created schema file
+  let sql = `INSERT INTO movies(title, release_year,overView,comment) values ($1,$2,$3,$4)`; //(Insert)columns names with values should match schema
+  client.query(sql, [movieTitle, release_year, overView, comment]).then(() => {
+    // from the req.body
+    // ordering important
+    //we use to do CRUD (client.query)
+    res.status(200).send(`Movie ${movieTitle} added to database`);
+  });
+});
+
+client.connect().then(() => {
+  // connect to database then run the server
+  app.listen(PORT, () => {
+    console.log(`listening at ${PORT}`);
+  });
+});
 
 //Routes
 app.get('/', handleHome);
@@ -23,6 +59,8 @@ function handleHome(req, res) {
     movieData.poster_path,
     movieData.overview
   );
+
+  // (/d movies to show the columns inside the movies table using postgressql server)
 
   res.json(movie); //to convert it into JSON-formatted response. ({"key":"pair"})
 }
@@ -38,19 +76,9 @@ app.get('/trending', async (req, res) => {
   );
   // res.send(axiosRespone.data);
 
-  // since its an object of two parameters we want to access results then it will be an
-  // array of objects we can access to each object using dot notation/ bracket
-  // and it can be solved using a constructor function or creating map (key:value) pairs , using in both for loop
   let arrayData = axiosRespone.data['results'];
   let trendingMovies = [];
   for (let i = 0; i < arrayData.length; i++) {
-    // let mov = new TrendingMovie(
-    //   arrayData[i]['id'],
-    //   arrayData[i]['title'],
-    //   arrayData[i]['poster_path'],
-    //   arrayData[i]['release_date'],
-    //   arrayData[i]['overview']
-    // );
     let mov = {
       //grouping data in group value pairs
       id: arrayData[i].id,
@@ -64,14 +92,6 @@ app.get('/trending', async (req, res) => {
   res.send(trendingMovies);
 });
 
-// function TrendingMovie(id, title, poster_path, release_date, overview) {
-//// form to be followed for other movies
-//   this.id = id;
-//   this.title = title;
-//   this.poster_path = poster_path;
-//   this.release_date = release_date;
-//   this.overview = overview;
-// }
 app.get('/search', async (req, res) => {
   let searchArr = [];
   let movieName = req.query.name;
@@ -80,12 +100,6 @@ app.get('/search', async (req, res) => {
   );
   let searchArray = axiosRespone.data['results'];
   for (let i = 0; i < searchArray.length; i++) {
-    //   if (
-    //     movieName.toLowerCase().trim() === // trim to remove white-spaces
-    //     searchArray[i].title.toLowerCase().trim()
-    //   ) {
-    // console.log(movieName);
-    // console.log(searchArray[i].title);
     let movie = {
       id: searchArray[i].id,
       title: searchArray[i].title,
@@ -147,7 +161,14 @@ function HomeMovie(title, poster_path, overview) {
   this.overview = overview;
 }
 
-// {
+// handleNotFound(req, res)  here is a middleware
+app.use((req, res, next) => {
+  res.status(404).send({
+    // we can use .json or .send
+    status: 404,
+    responseText: 'Page not found',
+  });
+});
 
 // Server Error(4 parameters)  here is a middleware
 app.use((err, req, res, next) => {
@@ -158,19 +179,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// handleNotFound(req, res)  here is a middleware
-app.use((req, res, next) => {
-  res.status(404).send({
-    // we can use .json or .send
-    status: 404,
-    responseText: 'Page not found',
-  });
-});
-
 // Starting the server handler
 
-app.listen(3000, startingLog);
+// app.listen(PORT, startingLog);
 
-function startingLog(req, res) {
-  console.log('Running at 3000');
-}
+// function startingLog(req, res) {
+//   console.log('Running at 3000');
+// }
