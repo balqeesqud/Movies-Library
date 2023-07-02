@@ -45,4 +45,7 @@ project holds the port will be running on which is here 3001, and also the get r
 **Updates** send get requests to a 3rd party API and display data; project now holds also the ('/search'), ('/trending'), ('/top_rated'), and ('/tv_list') endpoints, to search for any movie, trending, top 10 movies, or for tv lists.
 
 **New Updates**
-Used postgresSql to manipulate a (movies) table in the database (movieslibrary) using CRUD operations (creating/ inserting a new movie) using post request, and get the movies data from the database using get request to get all the data inside database
+Used postgresSql to manipulate a (movies) table in the database (movieslibrary) using CRUD operations (creating/ inserting a new movie) using post request, and get the movies data from the database using get request to get all the data inside database.
+
+**Latest Updates**
+Used ReSt APIs (Put, Delete) to update comments, & delete movie/s along with params by the id. Also used try, & catch to get the errors.
