@@ -16,6 +16,58 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 const client = new pg.Client(DATABASE_URL); // Connecting data base then connect to server
 
+///////////////////////////////////////////////////////////
+// ReST APIs
+
+// Deleting movie from database using (delete) & params
+app.delete('/delete/:id', (req, res) => {
+  try {
+    let idParam = req.params.id;
+    let sql = `DELETE FROM movies WHERE id=${idParam}`;
+    client.query(sql).then(() => {
+      // res.status(200).send(`movie ${idParam} deleted`);
+      res.status(204).end(); // (204) status wont send anything since is a delete req.
+    });
+  } catch (error) {
+    res.status(500).send('An error occurred while deleting the movie ' + error);
+  }
+});
+
+// Update a comment in database using (put) & params
+app.put('/update/:id', (req, res) => {
+  try {
+    let idParam = req.params.id;
+    let { newcomment } = req.body;
+
+    let sql = `UPDATE movies SET comment = $1 WHERE id=${idParam}`;
+
+    client.query(sql, [newcomment]).then((movieData) => {
+      res.status(200).send('Your comment is updated');
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .send('An error occurred while updating the comment' + error);
+  }
+});
+
+// Get movie from the database using (get)  & params
+app.get('/getMovie/:id', (req, res) => {
+  try {
+    let id = req.params.id;
+    let sql = `SELECT * FROM movies WHERE id=${id};`;
+    client.query(sql).then((moviesData) => {
+      res.status(200).send(moviesData.rows);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .send('An error ocurred while getting the required movie' + error);
+  }
+});
+
+///////////////////////////////////////////////////////////
+
 app.get('/getMovies', (req, res) => {
   // to get all movies inserted into movies table in the movieslibrary database
   let sql = `SELECT * FROM movies`;
@@ -31,13 +83,16 @@ app.post('/addMovie', (req, res) => {
   let overView = req.body.overView;
   let comment = req.body.comment;
 
+  // or using destructuring
+  // let { movieTitle,release_year,overView,comment} = req.body;
+
   //insert into should match with the created schema file
   let sql = `INSERT INTO movies(title, release_year,overView,comment) values ($1,$2,$3,$4)`; //(Insert)columns names with values should match schema
   client.query(sql, [movieTitle, release_year, overView, comment]).then(() => {
     // from the req.body
     // ordering important
     //we use to do CRUD (client.query)
-    res.status(200).send(`Movie ${movieTitle} added to database`);
+    res.status(201).send(`Movie ${movieTitle} added to database`); // add new data use status 201
   });
 });
 
@@ -92,7 +147,6 @@ app.get('/trending', async (req, res) => {
   res.send(trendingMovies);
 });
 
-
 app.get('/search', async (req, res) => {
   let searchArr = [];
   let movieName = req.query.name;
@@ -100,19 +154,16 @@ app.get('/search', async (req, res) => {
     `https://api.themoviedb.org/3/search/movie?api_key=${process.env.SECERT_API}&language=en-US&query=${movieName}&page=2`
   );
   let searchArray = axiosRespone.data['results'];
-  for (let i = 0; i < searchArray.length; i++) {
-
-    let movie = {
-      id: searchArray[i].id,
-      title: searchArray[i].title,
-      poster_path: searchArray[i].poster_path,
-      release_date: searchArray[i].release_date,
-      overview: searchArray[i].overview,
+  let movieSearchArr = searchArr.map((x) => {
+    return {
+      id: x.id,
+      title: x.title,
+      poster_path: x.poster_path,
+      release_date: x.release_date,
+      overview: x.overview,
     };
-    console.log(movie);
-    searchArr.push(movie);
-  }
-  res.send(searchArr);
+  });
+  res.send(movieSearchArr);
 });
 
 app.get('/top_rated', async (req, res) => {
@@ -120,20 +171,16 @@ app.get('/top_rated', async (req, res) => {
     `https://api.themoviedb.org/3/movie/top_rated?api_key=${process.env.SECERT_API}&language=en-US&page=1`
   );
   let topRatedArr = axiosRespone.data['results'];
-  let rated = [];
-  let movie;
-  for (let i = 0; i < 10; i++) {
-    movie = {
-      id: topRatedArr[i].id,
-      title: topRatedArr[i].title,
-      vote_average: topRatedArr[i].vote_average,
-      release_date: topRatedArr[i].release_date,
-      overview: topRatedArr[i].overview,
+  let ratedMovies = topRatedArr.map((item) => {
+    return {
+      id: item.id,
+      title: item.title,
+      vote_average: item.vote_average,
+      release_date: item.release_date,
+      overview: item.overview,
     };
-    console.log(movie);
-    rated.push(movie); // pushing each movie to the array
-  }
-  res.send(rated);
+  });
+  res.send(ratedMovies);
 });
 
 app.get('/tv_list', async (req, res) => {
@@ -142,16 +189,12 @@ app.get('/tv_list', async (req, res) => {
   );
 
   let tvArray = axiosRespone.data['genres'];
-  let tvListArr = [];
-  let category;
-
-  for (let i = 0; i < tvArray.length; i++) {
-    category = {
-      id: tvArray[i].id,
-      name: tvArray[i].name,
+  let tvListArr = tvArray.map((x) => {
+    return {
+      id: x.id,
+      name: x.name,
     };
-    tvListArr.push(category);
-  }
+  });
   res.send(tvListArr);
 });
 
@@ -163,7 +206,6 @@ function HomeMovie(title, poster_path, overview) {
   this.overview = overview;
 }
 
-
 // handleNotFound(req, res)  here is a middleware
 app.use((req, res, next) => {
   res.status(404).send({
@@ -172,9 +214,8 @@ app.use((req, res, next) => {
     responseText: 'Page not found',
   });
 });
-=======
-// {
 
+// {
 
 // Server Error(4 parameters)  here is a middleware
 app.use((err, req, res, next) => {
