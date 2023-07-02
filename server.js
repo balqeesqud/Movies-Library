@@ -132,29 +132,26 @@ app.get('/trending', async (req, res) => {
   // res.send(axiosRespone.data);
 
   let arrayData = axiosRespone.data['results'];
-  let trendingMovies = [];
-  for (let i = 0; i < arrayData.length; i++) {
-    let mov = {
-      //grouping data in group value pairs
-      id: arrayData[i].id,
-      title: arrayData[i].title,
-      release_date: arrayData[i].release_date,
-      poster_path: arrayData[i].poster_path,
-      overview: arrayData[i].overview,
+  let trendingMovies = arrayData.map((element) => {
+    return {
+      id: element.id,
+      title: element.title,
+      release_date: element.release_date,
+      poster_path: element.poster_path,
+      overview: element.overview,
     };
-    trendingMovies.push(mov);
-  }
+  });
+
   res.send(trendingMovies);
 });
 
 app.get('/search', async (req, res) => {
-  let searchArr = [];
   let movieName = req.query.name;
   let axiosRespone = await axios.get(
     `https://api.themoviedb.org/3/search/movie?api_key=${process.env.SECERT_API}&language=en-US&query=${movieName}&page=2`
   );
   let searchArray = axiosRespone.data['results'];
-  let movieSearchArr = searchArr.map((x) => {
+  let movieSearchArr = searchArray.map((x) => {
     return {
       id: x.id,
       title: x.title,
