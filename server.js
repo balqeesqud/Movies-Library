@@ -15,6 +15,13 @@ const internalServerError = require('./Error_handlers/500');
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res, next) => {
+  try {
+    res.status(200).send('Welcome to Movies Library');
+  } catch (error) {
+    next(`main route:+ ${error}`);
+  }
+});
 app.use('/general', generalRoutes);
 app.use('/movie', moviesRoutes);
 app.use(notFound);

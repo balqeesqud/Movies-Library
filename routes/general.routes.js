@@ -4,6 +4,7 @@ const axios = require('axios');
 const movieData = require('../Movie Data/data.json');
 const { SECRET_API } = require('../config');
 
+
 Router.get('/', handleHome);
 Router.get('/favorite', handleFavorite);
 
