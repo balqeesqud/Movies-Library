@@ -22,7 +22,7 @@ app.get('/', (req, res, next) => {
     next(`main route:+ ${error}`);
   }
 });
-app.use('/general', generalRoutes);
+app.use('/', generalRoutes);
 app.use('/movie', moviesRoutes);
 app.use(notFound);
 app.use(internalServerError);
