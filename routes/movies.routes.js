@@ -14,7 +14,7 @@ Router.post('/', (req, res, next) => {
     client
       .query(sql, [movieTitle, release_year, overView, comment])
       .then(() => {
-        res.status(201).send(`Movie ${movieTitle} added to database`);
+        res.status(201).json(`Movie ${movieTitle} added to database`);
       });
   } catch (error) {
     next(`An error occurred while adding a movie: ${error}`);
@@ -42,7 +42,7 @@ Router.put('/:id', (req, res, next) => {
     let sql = `UPDATE movies SET comment = $1 WHERE id=${idParam}`;
 
     client.query(sql, [newcomment]).then((movieData) => {
-      res.status(200).send('Your comment is updated');
+      res.status(200).json('Your comment is updated');
     });
   } catch (error) {
     next(`An error occurred while updating the movie Comment: ${error}`);
